@@ -35,5 +35,19 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves article with a specific id",
+    "queries": [],
+    "exampleResponse": {
+      "author": "weegembump",
+      "title": "written article",
+      "article_id": 1,
+      "topic": "cooking",
+      "body": "Text from the article..",
+      "created_at": "2018-05-30T15:59:13.341Z",
+      "votes": 0,
+      "article_img_url": "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+    }
   }
 }
