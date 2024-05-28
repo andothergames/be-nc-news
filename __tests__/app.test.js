@@ -21,3 +21,14 @@ describe("GET /api/topics", () => {
       });
   });
 });
+
+describe("GET /api/tpics", () => {
+  test("GET:404 Not Found on endpoint that doesn't exist", () => {
+    return request(app)
+      .get("/api/tpics")
+      .expect(404)
+      .then((body) => {
+        expect(body.res.statusMessage).toBe("Not Found");
+      });
+  });
+});
