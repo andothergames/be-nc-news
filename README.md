@@ -1,8 +1,6 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
-
-
+If you wish to clone this repo, please create a .env.test file and a .env.development file in the root folder. (See /db/setup.sql for the database names).
 
 --- 
 
