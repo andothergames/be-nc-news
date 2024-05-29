@@ -25,9 +25,6 @@ countComments = (id) => {
 };
 
 exports.selectArticleById = (id) => {
-  if (!/^\d+$/.test(id)) {
-    return Promise.reject({ status: 400, msg: "Bad request" });
-  }
   return db
     .query(
       `SELECT * FROM articles
@@ -46,7 +43,7 @@ exports.selectCommentsByArticleId = (id) => {
   return db
     .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
     .then(({ rows }) => {
-      if (rows.length === 0) {
+      if (!rows.length) {
         return Promise.reject({ status: 404, msg: "Article does not exist" });
       } else {
         return db
@@ -56,6 +53,25 @@ exports.selectCommentsByArticleId = (id) => {
           )
           .then(({ rows }) => {
             return rows;
+          });
+      }
+    });
+};
+
+exports.insertComment = (id, { author, body }) => {
+  return db
+    .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
+    .then(({ rows }) => {
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "Article does not exist" });
+      } else {
+        return db
+          .query(
+            `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
+            [id, author, body]
+          )
+          .then(({ rows }) => {
+            return rows[0];
           });
       }
     });

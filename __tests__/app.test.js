@@ -234,3 +234,54 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("POST:201 returns newly posted comment", () => {
+    const newComment = {
+      author: "rogersop",
+      body: "What a cool and groovy article you have",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment.body).toBe(
+          "What a cool and groovy article you have"
+        );
+        expect(body.comment.author).toBe("rogersop");
+        expect(body.comment).toHaveProperty("comment_id");
+        expect(body.comment).toHaveProperty("votes");
+        expect(body.comment).toHaveProperty("author");
+        expect(body.comment).toHaveProperty("body");
+        expect(body.comment).toHaveProperty("created_at");
+        expect(body.comment).toHaveProperty("article_id");
+      });
+  });
+  test("POST:404 returns error message when article does not exist", () => {
+    const newComment = {
+      author: "rogersop",
+      body: "What a cool and groovy article you have",
+    };
+    return request(app)
+      .post("/api/articles/100/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article does not exist");
+      });
+  });
+  test("POST:400 returns bad request error message when article isn't a number", () => {
+    const newComment = {
+      author: "rogersop",
+      body: "What a cool and groovy article you have",
+    };
+    return request(app)
+      .post("/api/articles/thisarticle/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
