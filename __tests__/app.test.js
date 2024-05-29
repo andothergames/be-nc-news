@@ -172,3 +172,65 @@ describe("GET /api/articles", () => {
       });
   });
 });
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("GET:200 returns array of comments for specific article that has comments", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(typeof body).toBe("object");
+        expect(Array.isArray(body)).toBeTruthy();
+        expect(body).toHaveLength(11);
+      });
+  });
+  test("GET:200 returns empty array of comments for specific article that has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(typeof body).toBe("object");
+        expect(Array.isArray(body)).toBeTruthy();
+        expect(body).toHaveLength(0);
+      });
+  });
+  test("GET:200 returns array of comments with correct properties", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        body.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id");
+          expect(comment).toHaveProperty("votes");
+          expect(comment).toHaveProperty("author");
+          expect(comment).toHaveProperty("body");
+          expect(comment).toHaveProperty("created_at");
+          expect(comment).toHaveProperty("article_id");
+        });
+      });
+  });
+  test("GET:200 returns array of comments correctly ordered by created_at in descending date order", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "created_at", descending: true });
+      });
+  });
+  test("GET:404 returns does not exist error message if article doesn't exist", () => {
+    return request(app)
+      .get("/api/articles/18/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article does not exist");
+      });
+  });
+  test("GET:400 returns bad request error message if article_id is not a number", () => {
+    return request(app)
+      .get("/api/articles/article/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
