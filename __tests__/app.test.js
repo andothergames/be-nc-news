@@ -3,6 +3,9 @@ const request = require("supertest");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data/index");
+const fs = require("fs/promises");
+const path = require("path");
+const endpointsPath = path.join(__dirname, "..", "endpoints.json");
 
 beforeAll(() => seed(data));
 afterAll(() => db.end());
@@ -41,21 +44,49 @@ describe("GET /api", () => {
       .then((body) => {
         const endpoints = JSON.parse(body.res.text);
         expect(typeof endpoints).toBe("object");
-        expect(Array.isArray(endpoints)).toBeTruthy();
         const api = /\/api/;
-        endpoints.forEach((object) => {
-          const keysArray = Object.keys(object);
-          keysArray.forEach((key) => {
-            expect(api.test(key)).toBeTruthy();
-          });
+        const keysArray = Object.keys(endpoints);
+        keysArray.forEach((key) => {
+          expect(api.test(key)).toBeTruthy();
         });
-        endpoints.forEach((object) => {
-          const objectKey = Object.values(object)[0];
-          expect(objectKey.hasOwnProperty("description")).toBeTruthy();
-          expect(objectKey.hasOwnProperty("queries")).toBeTruthy();
-          expect(objectKey.hasOwnProperty("exampleResponse")).toBeTruthy();
-        });
+        for (let key in endpoints) {
+          const object = endpoints[key];
+          expect(object.hasOwnProperty("description")).toBeTruthy();
+          expect(object.hasOwnProperty("queries")).toBeTruthy();
+          expect(object.hasOwnProperty("exampleResponse")).toBeTruthy();
+        }
       });
+  });
+});
+
+describe("GET /api", () => {
+  test("returns data that matches length of JSON endpoints file", () => {
+    fs.readFile(endpointsPath, "utf-8").then((data) => {
+      const parsedEndpoints = JSON.parse(data);
+      const JSONlength = Object.keys(parsedEndpoints).length;
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then((body) => {
+          const APIendpoints = JSON.parse(body.res.text);
+          expect(Object.keys(APIendpoints)).toHaveLength(JSONlength);
+        });
+    });
+  });
+});
+
+describe("GET /api", () => {
+  test("returns data that directly compares to endpoints JSON file", () => {
+    fs.readFile(endpointsPath, "utf-8").then((data) => {
+      const parsedEndpoints = JSON.parse(data);
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then((body) => {
+          const APIendpoints = JSON.parse(body.res.text);
+          expect(parsedEndpoints).toEqual(APIendpoints);
+        });
+    });
   });
 });
 
