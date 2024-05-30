@@ -14,8 +14,8 @@ exports.getArticles = (req, res, next) => {
 };
 
 exports.getArticleById = (req, res, next) => {
-  const id = req.params.article_id;;
-  selectArticleById(id)
+  const { article_id } = req.params;
+  selectArticleById(article_id)
     .then((article) => {
       res.status(200).send(article);
     })
@@ -23,8 +23,11 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getCommentsByArticleId = (req, res, next) => {
-  const id = req.params.article_id;
-  selectCommentsByArticleId(id)
+  const { article_id } = req.params;
+  selectArticleById(article_id)
+  .then(() => {
+    return selectCommentsByArticleId(article_id)
+  })
   .then((comments) => {
     res.status(200).send(comments)
   })
@@ -32,9 +35,12 @@ exports.getCommentsByArticleId = (req, res, next) => {
 }
 
 exports.postComment = (req, res, next) => {
-  const id = req.params.article_id;
+  const { article_id } = req.params;
   const newComment = req.body;
-  insertComment(id, newComment)
+  selectArticleById(article_id)
+  .then(() => {
+    return insertComment(article_id, newComment)
+  })
   .then((comment) => {
     res.status(201).send({ comment })
   })
