@@ -401,3 +401,23 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  test("GET:200 return array of all users", () => {
+    return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toHaveLength(4);
+          body.forEach((object) => {
+            console.log(object);
+            expect(object).toMatchObject({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String)
+            })
+          })
+        })
+  });
+});
+
