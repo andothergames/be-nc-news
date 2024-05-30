@@ -92,6 +92,17 @@ describe("GET /api/articles/:article_id", () => {
       .then((body) => {
         const article = JSON.parse(body.res.text);
         expect(article.article_id).toBe(1);
+        expect(article).toMatchObject({
+          comment_count: expect.any(Number),
+          author: expect.any(String),
+          article_id: expect.any(Number),
+          title: expect.any(String),
+          body: expect.any(String),
+          topic: expect.any(String),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          article_img_url: expect.any(String),
+        });
       });
   });
   test("GET:400 returns bad request when article id is not a number", () => {

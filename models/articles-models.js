@@ -33,8 +33,7 @@ exports.checkTopicExists = (topic) => {
 exports.selectArticleById = (id) => {
   return db
     .query(
-      `SELECT * FROM articles
-    WHERE article_id = $1`,
+      `SELECT a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.body, a.article_img_url, CAST(COUNT(c.article_id) AS INTEGER) AS comment_count FROM articles a LEFT JOIN comments c ON c.article_id = a.article_id WHERE a.article_id = $1 GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.body, a.article_img_url`,
       [id]
     )
     .then(({ rows }) => {
