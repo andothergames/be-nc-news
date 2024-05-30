@@ -1,12 +1,32 @@
 const db = require("../db/connection");
 
-exports.selectArticles = () => {
+exports.selectArticles = (topic) => {
+  const queryValues = [];
+  let sqlQuery = `SELECT a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url, CAST(COUNT(c.article_id) AS INTEGER) AS comment_count FROM articles a LEFT JOIN comments c ON c.article_id = a.article_id`;
+
+  if (topic) {
+    sqlQuery += ` WHERE topic = $1`;
+    queryValues.push(topic);
+  }
+
+  sqlQuery += ` GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url ORDER BY a.created_at DESC`;
+
+  return db.query(sqlQuery, queryValues).then(({ rows }) => {
+    return rows;
+  });
+};
+
+exports.checkTopicExists = (topic) => {
   return db
     .query(
-      `SELECT a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url, CAST(COUNT(c.article_id) AS INTEGER) AS comment_count FROM articles a LEFT JOIN comments c ON c.article_id = a.article_id GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url ORDER BY a.created_at DESC`
+      `SELECT * FROM topics
+  WHERE slug = $1`,
+      [topic]
     )
     .then(({ rows }) => {
-      return rows;
+      if (!rows.length) {
+        return Promise.reject({ status: 404, msg: "Topic does not exist" });
+      }
     });
 };
 

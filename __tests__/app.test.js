@@ -405,19 +405,64 @@ describe("DELETE /api/comments/:comment_id", () => {
 describe("GET /api/users", () => {
   test("GET:200 return array of all users", () => {
     return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body).toHaveLength(4);
-          body.forEach((object) => {
-            console.log(object);
-            expect(object).toMatchObject({
-              username: expect.any(String),
-              name: expect.any(String),
-              avatar_url: expect.any(String)
-            })
-          })
-        })
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveLength(4);
+        body.forEach((object) => {
+          expect(object).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
+      });
   });
 });
 
+describe("GET /api/articles?topic=:topic", () => {
+  test("GET:200 return array of articles that match topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveLength(1);
+        body.forEach((object) => {
+          expect(object).toMatchObject({
+            comment_count: expect.any(Number),
+            author: expect.any(String),
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: "cats",
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            article_img_url: expect.any(String),
+          });
+        });
+      });
+  });
+  test("GET:404 return error if topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=notatopic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic does not exist");
+      });
+  });
+  test("GET:200 return empty array if topic does exist but no articles are assigned", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toHaveLength(0);
+      });
+  });
+  test("GET:400 return bad request error if query is not allowed", () => {
+    return request(app)
+      .get("/api/articles?topic=notatopic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic does not exist");
+      });
+  });
+});
