@@ -20,9 +20,9 @@ describe("GET /api/topics", () => {
         body.topics.forEach((object) => {
           expect(object).toMatchObject({
             description: expect.any(String),
-            slug: expect.any(String)
-          })
-        })
+            slug: expect.any(String),
+          });
+        });
       });
   });
   test("GET:404 Not Found on endpoint that doesn't exist", () => {
@@ -49,10 +49,11 @@ describe("GET /api", () => {
         });
         for (let key in endpoints) {
           const object = endpoints[key];
-          expect(object).toMatchObject({description: expect.any(String),
+          expect(object).toMatchObject({
+            description: expect.any(String),
             queries: expect.any(Object),
-            exampleResponse: expect.any(Object)
-          })
+            exampleResponse: expect.any(Object),
+          });
         }
       });
   });
@@ -134,9 +135,9 @@ describe("GET /api/articles", () => {
             topic: expect.any(String),
             votes: expect.any(Number),
             created_at: expect.any(String),
-            article_img_url: expect.any(String)
-        })
-        expect(article).not.toHaveProperty("body")
+            article_img_url: expect.any(String),
+          });
+          expect(article).not.toHaveProperty("body");
         });
       });
   });
@@ -179,8 +180,8 @@ describe("GET /api/articles/:article_id/comments", () => {
             author: expect.any(String),
             body: expect.any(String),
             votes: expect.any(Number),
-            created_at: expect.any(String)
-          })
+            created_at: expect.any(String),
+          });
         });
       });
   });
@@ -231,8 +232,8 @@ describe("POST /api/articles/:article_id/comments", () => {
           author: expect.any(String),
           body: expect.any(String),
           votes: expect.any(Number),
-          created_at: expect.any(String)
-        })
+          created_at: expect.any(String),
+        });
       });
   });
   test("POST:404 returns error message when article does not exist", () => {
@@ -289,7 +290,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   test("POST:400 returns user does not exist", () => {
     const newComment = {
       body: "What a cool and groovy article you have",
-      author: "Roger Nobody"
+      author: "Roger Nobody",
     };
     return request(app)
       .post("/api/articles/1/comments")
@@ -301,4 +302,75 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
-//add in error handling tests for body object missing keys and if the body.author is not in db
+describe("PATCH /api/articles/:article_id", () => {
+  test("PATCH:201 returns article with changed votes when given positive integer", () => {
+    const newVote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.votes).toBe(101);
+      });
+  });
+  test("PATCH:201 returns article with changed votes when given negative integer", () => {
+    const newVote = { inc_votes: -51 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.votes).toBe(50);
+      });
+  });
+  test("PATCH:201 returns article with changed votes when votes go into the negative", () => {
+    const newVote = { inc_votes: -51 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.votes).toBe(-1);
+      });
+  });
+  test("PATCH:400 returns bad request error message when request is missing info - empty object", () => {
+    const newVote = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+  test("PATCH:400 returns bad request error message when request is missing info - wrong key", () => {
+    const newVote = { my_votes: 10 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+  test("PATCH:400 returns bad request error message when request is missing info - wrong value", () => {
+    const newVote = { inc_votes: "like" };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH:400 returns error message when article does not exist", () => {
+    const newVote = { inc_votes: -51 };
+    return request(app)
+      .patch("/api/articles/100")
+      .send(newVote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article does not exist");
+      });
+  });
+});
