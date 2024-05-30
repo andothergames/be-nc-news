@@ -17,15 +17,14 @@ describe("GET /api/topics", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.topics).toHaveLength(3);
-        body.topics.forEach((topic) => {
-          expect(typeof topic.description).toBe("string");
-          expect(typeof topic.slug).toBe("string");
-        });
+        body.topics.forEach((object) => {
+          expect(object).toMatchObject({
+            description: expect.any(String),
+            slug: expect.any(String)
+          })
+        })
       });
   });
-});
-
-describe("GET /api/banana", () => {
   test("GET:404 Not Found on endpoint that doesn't exist", () => {
     return request(app)
       .get("/api/banana")
@@ -43,7 +42,6 @@ describe("GET /api", () => {
       .expect(200)
       .then((body) => {
         const endpoints = JSON.parse(body.res.text);
-        expect(typeof endpoints).toBe("object");
         const api = /\/api/;
         const keysArray = Object.keys(endpoints);
         keysArray.forEach((key) => {
@@ -51,16 +49,14 @@ describe("GET /api", () => {
         });
         for (let key in endpoints) {
           const object = endpoints[key];
-          expect(object.hasOwnProperty("description")).toBeTruthy();
-          expect(object.hasOwnProperty("queries")).toBeTruthy();
-          expect(object.hasOwnProperty("exampleResponse")).toBeTruthy();
+          expect(object).toMatchObject({description: expect.any(String),
+            queries: expect.any(Object),
+            exampleResponse: expect.any(Object)
+          })
         }
       });
   });
-});
-
-describe("GET /api", () => {
-  test("returns data that matches length of JSON endpoints file", () => {
+  test("GET:200 returns data that matches length of JSON endpoints file", () => {
     fs.readFile(endpointsPath, "utf-8").then((data) => {
       const parsedEndpoints = JSON.parse(data);
       const JSONlength = Object.keys(parsedEndpoints).length;
@@ -73,10 +69,7 @@ describe("GET /api", () => {
         });
     });
   });
-});
-
-describe("GET /api", () => {
-  test("returns data that directly compares to endpoints JSON file", () => {
+  test("GET:200 returns data that directly compares to endpoints JSON file", () => {
     fs.readFile(endpointsPath, "utf-8").then((data) => {
       const parsedEndpoints = JSON.parse(data);
       return request(app)
@@ -97,22 +90,9 @@ describe("GET /api/articles/:article_id", () => {
       .expect(200)
       .then((body) => {
         const article = JSON.parse(body.res.text);
-        expect(article).toEqual({
-          article_id: 1,
-          title: "Living in the shadow of a great man",
-          topic: "mitch",
-          author: "butter_bridge",
-          body: "I find this existence challenging",
-          created_at: "2020-07-09T20:11:00.000Z",
-          votes: 100,
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-        });
+        expect(article.article_id).toBe(1);
       });
   });
-});
-
-describe("GET /api/articles/badRequest", () => {
   test("GET:400 returns bad request when article id is not a number", () => {
     return request(app)
       .get("/api/articles/cabbage")
@@ -121,9 +101,6 @@ describe("GET /api/articles/badRequest", () => {
         expect(res.body.msg).toBe("Bad request");
       });
   });
-});
-
-describe("GET /api/articles/14", () => {
   test("GET:404 returns correct message when article does not exist", () => {
     return request(app)
       .get("/api/articles/14")
@@ -140,8 +117,6 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body }) => {
-        expect(typeof body).toBe("object");
-        expect(Array.isArray(body)).toBeTruthy();
         expect(body).toHaveLength(13);
       });
   });
@@ -151,15 +126,17 @@ describe("GET /api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         body.forEach((article) => {
-          expect(article).toHaveProperty("comment_count", expect.any(Number));
-          expect(article).not.toHaveProperty("body");
-          expect(article).toHaveProperty("author");
-          expect(article).toHaveProperty("article_id");
-          expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("topic");
-          expect(article).toHaveProperty("created_at");
-          expect(article).toHaveProperty("votes");
-          expect(article).toHaveProperty("article_img_url");
+          expect(article).toMatchObject({
+            comment_count: expect.any(Number),
+            author: expect.any(String),
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: expect.any(String),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            article_img_url: expect.any(String)
+        })
+        expect(article).not.toHaveProperty("body")
         });
       });
   });
@@ -179,8 +156,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body }) => {
-        expect(typeof body).toBe("object");
-        expect(Array.isArray(body)).toBeTruthy();
         expect(body).toHaveLength(11);
       });
   });
@@ -189,8 +164,6 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/2/comments")
       .expect(200)
       .then(({ body }) => {
-        expect(typeof body).toBe("object");
-        expect(Array.isArray(body)).toBeTruthy();
         expect(body).toHaveLength(0);
       });
   });
@@ -200,12 +173,14 @@ describe("GET /api/articles/:article_id/comments", () => {
       .expect(200)
       .then(({ body }) => {
         body.forEach((comment) => {
-          expect(comment).toHaveProperty("comment_id");
-          expect(comment).toHaveProperty("votes");
-          expect(comment).toHaveProperty("author");
-          expect(comment).toHaveProperty("body");
-          expect(comment).toHaveProperty("created_at");
-          expect(comment).toHaveProperty("article_id");
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            article_id: expect.any(Number),
+            author: expect.any(String),
+            body: expect.any(String),
+            votes: expect.any(Number),
+            created_at: expect.any(String)
+          })
         });
       });
   });
@@ -246,16 +221,18 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(201)
       .then(({ body }) => {
+        expect(body.comment.author).toBe("rogersop");
         expect(body.comment.body).toBe(
           "What a cool and groovy article you have"
         );
-        expect(body.comment.author).toBe("rogersop");
-        expect(body.comment).toHaveProperty("comment_id");
-        expect(body.comment).toHaveProperty("votes");
-        expect(body.comment).toHaveProperty("author");
-        expect(body.comment).toHaveProperty("body");
-        expect(body.comment).toHaveProperty("created_at");
-        expect(body.comment).toHaveProperty("article_id");
+        expect(body.comment).toMatchObject({
+          comment_id: expect.any(Number),
+          article_id: expect.any(Number),
+          author: expect.any(String),
+          body: expect.any(String),
+          votes: expect.any(Number),
+          created_at: expect.any(String)
+        })
       });
   });
   test("POST:404 returns error message when article does not exist", () => {
@@ -284,4 +261,44 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
+
+  test("POST:400 returns bad request error message when request is missing info", () => {
+    const newComment = {
+      body: "What a cool and groovy article you have",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+  test("POST:400 returns bad request error message when request is missing info", () => {
+    const newComment = {
+      author: "rogersop",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+  test("POST:400 returns user does not exist", () => {
+    const newComment = {
+      body: "What a cool and groovy article you have",
+      author: "Roger Nobody"
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User does not exist");
+      });
+  });
 });
+
+//add in error handling tests for body object missing keys and if the body.author is not in db

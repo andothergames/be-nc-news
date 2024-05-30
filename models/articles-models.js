@@ -3,24 +3,10 @@ const db = require("../db/connection");
 exports.selectArticles = () => {
   return db
     .query(
-      `SELECT article_id, title, author, topic, created_at, votes, article_img_url FROM articles ORDER BY created_at DESC`
+      `SELECT a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url, CAST(COUNT(c.article_id) AS INTEGER) AS comment_count FROM articles a LEFT JOIN comments c ON c.article_id = a.article_id GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url ORDER BY a.created_at DESC`
     )
     .then(({ rows }) => {
-      const commentCountPromises = rows.map((object) => {
-        return countComments(object.article_id).then((count) => {
-          object.comment_count = count;
-          return object;
-        });
-      });
-      return Promise.all(commentCountPromises);
-    });
-};
-
-countComments = (id) => {
-  return db
-    .query(`SELECT * FROM comments WHERE article_id = $1`, [id])
-    .then(({ rows }) => {
-      return rows.length;
+      return rows;
     });
 };
 
@@ -32,7 +18,7 @@ exports.selectArticleById = (id) => {
       [id]
     )
     .then(({ rows }) => {
-      if (rows.length === 0) {
+      if (!rows.length) {
         return Promise.reject({ status: 404, msg: "Article does not exist" });
       }
       return rows[0];
@@ -40,39 +26,40 @@ exports.selectArticleById = (id) => {
 };
 
 exports.selectCommentsByArticleId = (id) => {
-  return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
+    return db
+      .query(
+        `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
+        [id]
+      )
     .then(({ rows }) => {
-      if (!rows.length) {
-        return Promise.reject({ status: 404, msg: "Article does not exist" });
-      } else {
-        return db
-          .query(
-            `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`,
-            [id]
-          )
-          .then(({ rows }) => {
-            return rows;
-          });
-      }
-    });
+      return rows;
+    })
 };
 
+checkUserExists = (author) => {
+  return db.query(`SELECT * FROM users WHERE username = $1`, [author])
+  .then(( { rows }) => {
+    if (!rows.length) {
+      return Promise.reject({ status: 400, msg: "User does not exist" });
+    } else {
+      return;
+    }
+  })
+
+}
 exports.insertComment = (id, { author, body }) => {
-  return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
+    if (!author || !body) {
+      return Promise.reject({ status: 400, msg: "Missing information" });
+    }
+    return checkUserExists(author)
+  .then(() => {
+    return db
+      .query(
+        `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
+        [id, author, body]
+      )
+  })
     .then(({ rows }) => {
-      if (!rows.length) {
-        return Promise.reject({ status: 404, msg: "Article does not exist" });
-      } else {
-        return db
-          .query(
-            `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
-            [id, author, body]
-          )
-          .then(({ rows }) => {
-            return rows[0];
-          });
-      }
+      return rows[0];
     });
 };
