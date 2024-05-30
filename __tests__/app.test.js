@@ -374,3 +374,30 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("DELETE:204 deletes a comment", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("DELETE:204 returns error message when comment does not exist", () => {
+    return request(app)
+      .delete("/api/comments/200")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment does not exist");
+      });
+  });
+  test("DELETE:204 returns bad request error message when comment endpoint is not a number", () => {
+    return request(app)
+      .delete("/api/comments/hello")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
