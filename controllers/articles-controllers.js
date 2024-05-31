@@ -17,10 +17,10 @@ exports.getArticles = (req, res, next) => {
     lowerCaseQueries[key.toLowerCase()] = req.query[key].toLowerCase();
   }
 
-  const { topic, sort_by, order } = lowerCaseQueries;
+  const { topic, sort_by, order } = req.query;
 
   const checkPromises = [];
-  checkPromises.push(checkQueryValid(lowerCaseQueries));
+  checkPromises.push(checkQueryValid(req.query));
   if (sort_by) {
     checkPromises.push(checkCategoryExists(sort_by));
   }

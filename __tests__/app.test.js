@@ -535,17 +535,6 @@ describe("GET /api/articles?sort_by=topic&order=asc", () => {
         });
       });
   });
-  test("GET:200 return array of articles of a certain topic sorted by specified key in specified order irrelevant of query case", () => {
-    return request(app)
-      .get("/api/articles?topic=mitch&oRDEr=asc&sort_by=auTHor")
-      .expect(200)
-      .then(({ body }) => {
-        expect(body).toBeSorted({ key: "author", ascending: true });
-        body.forEach((object) => {
-          expect(object.topic).toBe("mitch");
-        });
-      });
-  });
   test("GET:400 return bad request error if sort_by value does not exist in the database", () => {
     return request(app)
       .get("/api/articles?sort_by=favecolour")
