@@ -16,6 +16,15 @@ exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
   });
 };
 
+exports.checkQueryValid = (queries) => {
+  const validQueries = ["topic", "sort_by", "order"];
+  for (key in queries) {
+    if (!validQueries.includes(key)) {
+      return Promise.reject({ status: 404, msg: "Bad request" });
+    }
+  }
+};
+
 exports.checkTopicExists = (topic) => {
   return db
     .query(
@@ -47,7 +56,7 @@ exports.checkCategoryExists = (column) => {
 };
 
 exports.checkOrderValid = (order) => {
-  const validOrders = ["asc", "ASC", "desc", "DESC"];
+  const validOrders = ["asc", "desc"];
   if (!validOrders.includes(order)) {
     return Promise.reject({ status: 400, msg: "Bad request" });
   }

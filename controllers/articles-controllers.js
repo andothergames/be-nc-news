@@ -7,14 +7,20 @@ const {
   checkTopicExists,
   checkCategoryExists,
   checkOrderValid,
+  checkQueryValid,
 } = require("../models/articles-models");
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query;
-  const { sort_by } = req.query;
-  const { order } = req.query;
+  lowerCaseQueries = {};
+
+  for (key in req.query) {
+    lowerCaseQueries[key.toLowerCase()] = req.query[key].toLowerCase();
+  }
+
+  const { topic, sort_by, order } = lowerCaseQueries;
 
   const checkPromises = [];
+  checkPromises.push(checkQueryValid(lowerCaseQueries));
   if (sort_by) {
     checkPromises.push(checkCategoryExists(sort_by));
   }

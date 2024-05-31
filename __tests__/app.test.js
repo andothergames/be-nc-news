@@ -374,7 +374,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
-  test("PATCH:400 returns error message when article does not exist", () => {
+  test("PATCH:404 returns error message when article does not exist", () => {
     const newVote = { inc_votes: -51 };
     return request(app)
       .patch("/api/articles/100")
@@ -382,6 +382,16 @@ describe("PATCH /api/articles/:article_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Article does not exist");
+      });
+  });
+  test("PATCH:400 returns bad request error message when given invalid endpoint", () => {
+    const newVote = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/articles/thisarticle")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
@@ -395,7 +405,7 @@ describe("DELETE /api/comments/:comment_id", () => {
         expect(body).toEqual({});
       });
   });
-  test("DELETE:204 returns error message when comment does not exist", () => {
+  test("DELETE:404 returns error message when comment does not exist", () => {
     return request(app)
       .delete("/api/comments/200")
       .expect(404)
@@ -403,7 +413,7 @@ describe("DELETE /api/comments/:comment_id", () => {
         expect(body.msg).toBe("Comment does not exist");
       });
   });
-  test("DELETE:204 returns bad request error message when comment endpoint is not a number", () => {
+  test("DELETE:400 returns bad request error message when comment endpoint is not a number", () => {
     return request(app)
       .delete("/api/comments/hello")
       .expect(400)
@@ -470,10 +480,10 @@ describe("GET /api/articles?topic=:topic", () => {
   });
   test("GET:400 return bad request error if query is not allowed", () => {
     return request(app)
-      .get("/api/articles?topic=notatopic")
+      .get("/api/articles?whateverilike=cats")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Topic does not exist");
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
@@ -517,6 +527,17 @@ describe("GET /api/articles?sort_by=topic&order=asc", () => {
   test("GET:200 return array of articles of a certain topic sorted by specified key in specified order", () => {
     return request(app)
       .get("/api/articles?topic=mitch&order=asc&sort_by=author")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "author", ascending: true });
+        body.forEach((object) => {
+          expect(object.topic).toBe("mitch");
+        });
+      });
+  });
+  test("GET:200 return array of articles of a certain topic sorted by specified key in specified order irrelevant of query case", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&oRDEr=asc&sort_by=auTHor")
       .expect(200)
       .then(({ body }) => {
         expect(body).toBeSorted({ key: "author", ascending: true });
