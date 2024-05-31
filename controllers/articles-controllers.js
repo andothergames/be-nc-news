@@ -5,26 +5,34 @@ const {
   insertComment,
   changeVotes,
   checkTopicExists,
+  checkCategoryExists,
+  checkOrderValid,
 } = require("../models/articles-models");
 
 exports.getArticles = (req, res, next) => {
   const { topic } = req.query;
-  if (topic) {
-    checkTopicExists(topic)
-      .then(() => {
-        return selectArticles(topic);
-      })
-      .then((articles) => {
-        res.status(200).send(articles);
-      })
-      .catch(next);
-  } else {
-    selectArticles()
-      .then((articles) => {
-        res.status(200).send(articles);
-      })
-      .catch(next);
+  const { sort_by } = req.query;
+  const { order } = req.query;
+
+  const checkPromises = [];
+  if (sort_by) {
+    checkPromises.push(checkCategoryExists(sort_by));
   }
+  if (topic) {
+    checkPromises.push(checkTopicExists(topic));
+  }
+  if (order) {
+    checkPromises.push(checkOrderValid(order));
+  }
+
+  Promise.all(checkPromises)
+    .then(() => {
+      return selectArticles(topic, sort_by, order);
+    })
+    .then((articles) => {
+      res.status(200).send(articles);
+    })
+    .catch(next);
 };
 
 exports.getArticleById = (req, res, next) => {

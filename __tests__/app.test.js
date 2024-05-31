@@ -477,3 +477,68 @@ describe("GET /api/articles?topic=:topic", () => {
       });
   });
 });
+
+describe("GET /api/articles?sort_by=topic&order=asc", () => {
+  test("GET:200 return array of articles sorted by topic in ascending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "topic", ascending: true });
+      });
+  });
+  test("GET:200 return array of articles sorted by topic in descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=topic&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "topic", descending: true });
+      });
+  });
+  test("GET:200 return array of articles sorted by created_at in ascending order when no sort_by set", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "created_at", ascending: true });
+      });
+  });
+  test("GET:200 return array of articles of a certain topic sorted by created_at in descending order when no sort_by or order set", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "created_at", descending: true });
+        body.forEach((object) => {
+          expect(object.topic).toBe("mitch");
+        });
+      });
+  });
+  test("GET:200 return array of articles of a certain topic sorted by specified key in specified order", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch&order=asc&sort_by=author")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeSorted({ key: "author", ascending: true });
+        body.forEach((object) => {
+          expect(object.topic).toBe("mitch");
+        });
+      });
+  });
+  test("GET:400 return bad request error if sort_by value does not exist in the database", () => {
+    return request(app)
+      .get("/api/articles?sort_by=favecolour")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("sort_by value does not exist");
+      });
+  });
+  test("GET:400 return bad request error if order value is invalid", () => {
+    return request(app)
+      .get("/api/articles?order=myorder")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});

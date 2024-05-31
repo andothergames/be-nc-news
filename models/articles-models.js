@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.selectArticles = (topic) => {
+exports.selectArticles = (topic, sort_by = "created_at", order = "desc") => {
   const queryValues = [];
   let sqlQuery = `SELECT a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url, CAST(COUNT(c.article_id) AS INTEGER) AS comment_count FROM articles a LEFT JOIN comments c ON c.article_id = a.article_id`;
 
@@ -9,7 +9,7 @@ exports.selectArticles = (topic) => {
     queryValues.push(topic);
   }
 
-  sqlQuery += ` GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url ORDER BY a.created_at DESC`;
+  sqlQuery += ` GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.article_img_url ORDER BY a.${sort_by} ${order}`;
 
   return db.query(sqlQuery, queryValues).then(({ rows }) => {
     return rows;
@@ -28,6 +28,29 @@ exports.checkTopicExists = (topic) => {
         return Promise.reject({ status: 404, msg: "Topic does not exist" });
       }
     });
+};
+
+exports.checkCategoryExists = (column) => {
+  return db
+    .query(
+      `SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'articles'`
+    )
+    .then(({ rows }) => {
+      const columns = rows.map((row) => row.column_name);
+      if (!columns.includes(column)) {
+        return Promise.reject({
+          status: 400,
+          msg: "sort_by value does not exist",
+        });
+      }
+    });
+};
+
+exports.checkOrderValid = (order) => {
+  const validOrders = ["asc", "ASC", "desc", "DESC"];
+  if (!validOrders.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad request" });
+  }
 };
 
 exports.selectArticleById = (id) => {
