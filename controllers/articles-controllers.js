@@ -3,7 +3,7 @@ const {
   selectArticleById,
   selectCommentsByArticleId,
   insertComment,
-  changeVotes,
+  changeArticleVotes,
   checkTopicExists,
   checkCategoryExists,
   checkOrderValid,
@@ -94,7 +94,7 @@ exports.patchArticleVotes = (req, res, next) => {
   const newVote = req.body;
   selectArticleById(article_id)
     .then(() => {
-      return changeVotes(article_id, newVote);
+      return changeArticleVotes(article_id, newVote);
     })
     .then((article) => {
       res.status(201).send(article);
