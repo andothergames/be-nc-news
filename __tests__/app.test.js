@@ -588,3 +588,87 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("PATCH:201 returns comment with changed votes when given positive integer", () => {
+    const newVote = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/2")
+      .send(newVote)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.votes).toBe(15);
+      });
+  });
+  test("PATCH:201 returns comment with changed votes when given negative integer", () => {
+    const newVote = { inc_votes: -5 };
+    return request(app)
+      .patch("/api/comments/2")
+      .send(newVote)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.votes).toBe(10);
+      });
+  });
+  test("PATCH:201 returns comment with changed votes when votes go into the negative", () => {
+    const newVote = { inc_votes: -20 };
+    return request(app)
+      .patch("/api/comments/2")
+      .send(newVote)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.votes).toBe(-10);
+      });
+  });
+  test("PATCH:400 returns bad request error message when request is missing info - empty object", () => {
+    const newVote = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+  test("PATCH:400 returns bad request error message when request is missing info - wrong key", () => {
+    const newVote = { my_votes: 10 };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+  test("PATCH:400 returns bad request error message when request is missing info - wrong value", () => {
+    const newVote = { inc_votes: "like" };
+    return request(app)
+      .patch("/api/comments/2")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH:404 returns error message when comment does not exist", () => {
+    const newVote = { inc_votes: -51 };
+    return request(app)
+      .patch("/api/comments/100000")
+      .send(newVote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment does not exist");
+      });
+  });
+  test("PATCH:400 returns bad request error message when given invalid endpoint", () => {
+    const newVote = { inc_votes: 10 };
+    return request(app)
+      .patch("/api/comments/thisarticle")
+      .send(newVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
