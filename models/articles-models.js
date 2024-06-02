@@ -92,7 +92,7 @@ checkUserExists = (author) => {
     .query(`SELECT * FROM users WHERE username = $1`, [author])
     .then(({ rows }) => {
       if (!rows.length) {
-        return Promise.reject({ status: 400, msg: "User does not exist" });
+        return Promise.reject({ status: 404, msg: "User does not exist" });
       } else {
         return;
       }

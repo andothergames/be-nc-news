@@ -298,7 +298,7 @@ describe("POST /api/articles/:article_id/comments", () => {
         expect(body.msg).toBe("Missing information");
       });
   });
-  test("POST:400 returns user does not exist", () => {
+  test("POST:404 returns user does not exist", () => {
     const newComment = {
       body: "What a cool and groovy article you have",
       author: "Roger Nobody",
@@ -306,7 +306,7 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send(newComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("User does not exist");
       });
@@ -560,6 +560,32 @@ describe("GET /api/articles?sort_by=topic&order=asc", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("GET /api/users/:username", () => {
+  test("GET:200 returns a specific user by given username", () => {
+    return request(app)
+      .get("/api/users/lurker")
+      .expect(200)
+      .then((body) => {
+        const user = JSON.parse(body.res.text);
+        console.log(user);
+        expect(user.username).toBe('lurker');
+        expect(user).toMatchObject({
+          username: expect.any(String),
+          name: expect.any(String),
+          avatar_url: expect.any(String)
+        });
+      });
+  });
+  test("GET:404 returns error message when username does not exist", () => {
+    return request(app)
+      .get("/api/users/whoisthisnow")
+      .expect(404)
+      .then((res) => {
+        expect(res.body.msg).toBe("User does not exist");
       });
   });
 });
