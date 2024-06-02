@@ -7,8 +7,12 @@ const {
   checkTopicExists,
   checkCategoryExists,
   checkOrderValid,
-  checkQueryValid,
+  checkQueryValid
 } = require("../models/articles-models");
+
+const {
+  checkUserExists
+} = require('../models/users-models')
 
 exports.getArticles = (req, res, next) => {
   lowerCaseQueries = {};
@@ -65,7 +69,17 @@ exports.getCommentsByArticleId = (req, res, next) => {
 exports.postComment = (req, res, next) => {
   const { article_id } = req.params;
   const newComment = req.body;
-  selectArticleById(article_id)
+  const { body, author } = req.body;
+
+  if (!author || !body) {
+    return res.status(400).send({ status: 400, msg: "Missing information" });
+  }
+
+  const checkPromises = [];
+  checkPromises.push(selectArticleById(article_id));
+  checkPromises.push(checkUserExists(newComment.author));
+
+  Promise.all(checkPromises)
     .then(() => {
       return insertComment(article_id, newComment);
     })
