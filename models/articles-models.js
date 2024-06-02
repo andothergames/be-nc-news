@@ -87,31 +87,14 @@ exports.selectCommentsByArticleId = (id) => {
     });
 };
 
-checkUserExists = (author) => {
-  return db
-    .query(`SELECT * FROM users WHERE username = $1`, [author])
-    .then(({ rows }) => {
-      if (!rows.length) {
-        return Promise.reject({ status: 404, msg: "User does not exist" });
-      } else {
-        return;
-      }
-    });
-};
 exports.insertComment = (id, { author, body }) => {
-  if (!author || !body) {
-    return Promise.reject({ status: 400, msg: "Missing information" });
-  }
-  return checkUserExists(author)
-    .then(() => {
       return db.query(
         `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
         [id, author, body]
-      );
-    })
+      )
     .then(({ rows }) => {
       return rows[0];
-    });
+    })
 };
 
 exports.changeVotes = (id, { inc_votes }) => {

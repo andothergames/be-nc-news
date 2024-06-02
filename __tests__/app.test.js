@@ -571,7 +571,6 @@ describe("GET /api/users/:username", () => {
       .expect(200)
       .then((body) => {
         const user = JSON.parse(body.res.text);
-        console.log(user);
         expect(user.username).toBe('lurker');
         expect(user).toMatchObject({
           username: expect.any(String),
