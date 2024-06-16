@@ -35,6 +35,15 @@ I hosted the site using Supabase and Render, feel free to [have a look](https://
 
 ---
 
+<img src="https://github.com/andothergames/stars/blob/main/starss/star8.png?raw=true?" width="16"> Testing
+
+For testing using Jest:
+
+`npm run test`
+
+
+--- 
+
 <img src="https://github.com/andothergames/stars/blob/main/starss/star2.png?raw=true?" width="14"> Versions
 
 This project was built with:
