@@ -27,3 +27,26 @@ exports.checkUserExists = (author) => {
       }
     });
 };
+
+exports.checkUserAlreadyExists = (author) => {
+  return db
+    .query(`SELECT * FROM users WHERE username = $1`, [author])
+    .then(({ rows }) => {
+      if (rows.length) {
+        return Promise.reject({ status: 404, msg: "User already exists" });
+      } else {
+        return;
+      }
+    });
+};
+
+exports.insertUser = (author, name, avatar_url) => {
+  return db
+    .query(
+      `INSERT INTO users (username, name, avatar_url) VALUES ($1, $2, $3) RETURNING *`,
+      [author, name, avatar_url]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};

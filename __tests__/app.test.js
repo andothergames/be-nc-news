@@ -735,7 +735,9 @@ describe("POST /api/articles", () => {
       .send(newPost)
       .expect(201)
       .then(({ body }) => {
-        expect(body.article.article_img_url).toBe("https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png");
+        expect(body.article.article_img_url).toBe(
+          "https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png"
+        );
       });
   });
 
@@ -745,7 +747,8 @@ describe("POST /api/articles", () => {
       title: "An article",
       body: "What a cool and groovy article you have",
       topic: "cats",
-      article_img_url: "https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png",
+      article_img_url:
+        "https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png",
     };
     return request(app)
       .post("/api/articles")
@@ -757,14 +760,13 @@ describe("POST /api/articles", () => {
   });
 });
 
-
-
 describe("POST /api/users", () => {
   test("POST:201 returns newly posted user", () => {
     const newUser = {
       author: "sheila123",
       name: "Sheila",
-      avatar_url: "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png",
+      avatar_url:
+        "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png",
     };
     return request(app)
       .post("/api/users/")
@@ -773,7 +775,9 @@ describe("POST /api/users", () => {
       .then(({ body }) => {
         expect(body.user.username).toBe("sheila123");
         expect(body.user.name).toBe("Sheila");
-        expect(body.user.avatar_url).toBe("https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png");
+        expect(body.user.avatar_url).toBe(
+          "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png"
+        );
       });
   });
 
@@ -790,11 +794,28 @@ describe("POST /api/users", () => {
       });
   });
 
+  test("POST:201 returns newly posted user with placeholder avatar if no avatar url provided", () => {
+    const newUser = {
+      author: "gary1234",
+      name: "Gaz",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.user.avatar_url).toBe(
+          "https://i.ibb.co/xYwwGSb/avatargrey.png"
+        );
+      });
+  });
+
   test("POST:404 returns user already exists", () => {
     const newUser = {
       author: "lurker",
       name: "Sheila",
-      avatar_url: "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png",
+      avatar_url:
+        "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png",
     };
     return request(app)
       .post("/api/users")
