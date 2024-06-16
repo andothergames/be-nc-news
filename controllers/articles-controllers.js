@@ -111,7 +111,7 @@ exports.postArticle = (req, res, next) => {
   }
 
   if (!article_img_url) {
-    article_img_url = "https://ibb.co/mNVnc12";
+    article_img_url = "https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png";
   }
 
   checkUserExists(newPost.author)

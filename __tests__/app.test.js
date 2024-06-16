@@ -735,7 +735,7 @@ describe("POST /api/articles", () => {
       .send(newPost)
       .expect(201)
       .then(({ body }) => {
-        expect(body.article.article_img_url).toBe("https://ibb.co/mNVnc12");
+        expect(body.article.article_img_url).toBe("https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png");
       });
   });
 
@@ -745,7 +745,7 @@ describe("POST /api/articles", () => {
       title: "An article",
       body: "What a cool and groovy article you have",
       topic: "cats",
-      article_img_url: "https://i.ibb.co/sRvZK2v/trumpet-1f3ba.png",
+      article_img_url: "https://i.ibb.co/7kd318Z/Screenshot-2024-06-16-at-20-37-14.png",
     };
     return request(app)
       .post("/api/articles")
@@ -753,6 +753,55 @@ describe("POST /api/articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("User does not exist");
+      });
+  });
+});
+
+
+
+describe("POST /api/users", () => {
+  test("POST:201 returns newly posted user", () => {
+    const newUser = {
+      author: "sheila123",
+      name: "Sheila",
+      avatar_url: "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png",
+    };
+    return request(app)
+      .post("/api/users/")
+      .send(newUser)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.user.username).toBe("sheila123");
+        expect(body.user.name).toBe("Sheila");
+        expect(body.user.avatar_url).toBe("https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png");
+      });
+  });
+
+  test("POST:400 returns bad request error message when request is missing info", () => {
+    const newUser = {
+      username: "Robert",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+
+  test("POST:404 returns user already exists", () => {
+    const newUser = {
+      author: "lurker",
+      name: "Sheila",
+      avatar_url: "https://i.ibb.co/LQnKQ3W/Screenshot-2024-06-13-at-18-37-34.png",
+    };
+    return request(app)
+      .post("/api/users")
+      .send(newUser)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User already exists");
       });
   });
 });
