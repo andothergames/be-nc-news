@@ -24,7 +24,6 @@ exports.checkCommentExists = (id) => {
 
 
 exports.changeCommentVotes = (id, { inc_votes }) => {
-  console.log(inc_votes);
   if (!inc_votes) {
     return Promise.reject({ status: 400, msg: "Missing information" });
   }

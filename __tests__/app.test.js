@@ -571,11 +571,11 @@ describe("GET /api/users/:username", () => {
       .expect(200)
       .then((body) => {
         const user = JSON.parse(body.res.text);
-        expect(user.username).toBe('lurker');
+        expect(user.username).toBe("lurker");
         expect(user).toMatchObject({
           username: expect.any(String),
           name: expect.any(String),
-          avatar_url: expect.any(String)
+          avatar_url: expect.any(String),
         });
       });
   });
@@ -588,7 +588,6 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
-
 
 describe("PATCH /api/comments/:comment_id", () => {
   test("PATCH:201 returns comment with changed votes when given positive integer", () => {
@@ -669,6 +668,91 @@ describe("PATCH /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("POST /api/articles", () => {
+  test("POST:201 returns newly posted article", () => {
+    const newPost = {
+      author: "rogersop",
+      title: "An article",
+      body: "What a cool and groovy article this is",
+      topic: "cats",
+      article_img_url: "https://i.ibb.co/sRvZK2v/trumpet-1f3ba.png",
+    };
+    return request(app)
+      .post("/api/articles/")
+      .send(newPost)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article.author).toBe("rogersop");
+        expect(body.article.title).toBe("An article");
+        expect(body.article.topic).toBe("cats");
+        expect(body.article.body).toBe(
+          "What a cool and groovy article this is"
+        );
+        expect(body.article.article_img_url).toBe(
+          "https://i.ibb.co/sRvZK2v/trumpet-1f3ba.png"
+        );
+
+        expect(body.article).toMatchObject({
+          article_id: expect.any(Number),
+          title: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          topic: expect.any(String),
+          article_img_url: expect.any(String),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          comment_count: expect.any(Number),
+        });
+      });
+  });
+
+  test("POST:400 returns bad request error message when request is missing info", () => {
+    const newPost = {
+      body: "What a cool and groovy article you have",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newPost)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+
+  test("POST:201 returns newly posted article with placeholder image if no image url provided", () => {
+    const newPost = {
+      author: "rogersop",
+      title: "An article",
+      body: "What a cool and groovy article you have",
+      topic: "cats",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newPost)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.article.article_img_url).toBe("https://ibb.co/mNVnc12");
+      });
+  });
+
+  test("POST:404 returns user does not exist", () => {
+    const newPost = {
+      author: "Unknown",
+      title: "An article",
+      body: "What a cool and groovy article you have",
+      topic: "cats",
+      article_img_url: "https://i.ibb.co/sRvZK2v/trumpet-1f3ba.png",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newPost)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User does not exist");
       });
   });
 });

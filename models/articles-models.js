@@ -88,13 +88,14 @@ exports.selectCommentsByArticleId = (id) => {
 };
 
 exports.insertComment = (id, { author, body }) => {
-      return db.query(
-        `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
-        [id, author, body]
-      )
+  return db
+    .query(
+      `INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *`,
+      [id, author, body]
+    )
     .then(({ rows }) => {
       return rows[0];
-    })
+    });
 };
 
 exports.changeArticleVotes = (id, { inc_votes }) => {
@@ -106,6 +107,24 @@ exports.changeArticleVotes = (id, { inc_votes }) => {
       `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *`,
       [inc_votes, id]
     )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
+
+exports.insertPost = (author, title, body, topic, article_img_url) => {
+  return db
+    .query(
+      `INSERT INTO articles (author, title, body, topic, article_img_url) VALUES ($1, $2, $3, $4, $5) RETURNING article_id`,
+      [author, title, body, topic, article_img_url]
+    )
+    .then(({ rows }) => {
+      const newID = rows[0].article_id;
+      return db.query(
+        `SELECT a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.body, a.article_img_url, CAST(COUNT(c.article_id) AS INTEGER) AS comment_count FROM articles a LEFT JOIN comments c ON c.article_id = a.article_id WHERE a.article_id = $1 GROUP BY a.article_id, a.title, a.author, a.topic, a.created_at, a.votes, a.body, a.article_img_url`,
+        [newID]
+      );
+    })
     .then(({ rows }) => {
       return rows[0];
     });

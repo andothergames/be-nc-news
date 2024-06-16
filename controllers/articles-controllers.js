@@ -1,18 +1,17 @@
 const {
   selectArticles,
   selectArticleById,
+  insertPost,
   selectCommentsByArticleId,
   insertComment,
   changeArticleVotes,
   checkTopicExists,
   checkCategoryExists,
   checkOrderValid,
-  checkQueryValid
+  checkQueryValid,
 } = require("../models/articles-models");
 
-const {
-  checkUserExists
-} = require('../models/users-models')
+const { checkUserExists } = require("../models/users-models");
 
 exports.getArticles = (req, res, next) => {
   lowerCaseQueries = {};
@@ -98,6 +97,29 @@ exports.patchArticleVotes = (req, res, next) => {
     })
     .then((article) => {
       res.status(201).send(article);
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  const newPost = req.body;
+  const { author, title, body, topic } = req.body;
+  let { article_img_url } = req.body;
+
+  if (!author || !title || !body || !topic) {
+    return res.status(400).send({ status: 400, msg: "Missing information" });
+  }
+
+  if (!article_img_url) {
+    article_img_url = "https://ibb.co/mNVnc12";
+  }
+
+  checkUserExists(newPost.author)
+    .then(() => {
+      return insertPost(author, title, body, topic, article_img_url);
+    })
+    .then((article) => {
+      res.status(201).send({ article });
     })
     .catch(next);
 };
