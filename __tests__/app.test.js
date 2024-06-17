@@ -826,3 +826,49 @@ describe("POST /api/users", () => {
       });
   });
 });
+
+describe("POST /api/topics", () => {
+  test("POST:201 returns newly created topic", () => {
+    const newTopic = {
+      slug: "animals",
+      description: "cool animal friends",
+    };
+    return (
+      request(app)
+        .post("/api/topics/")
+        .send(newTopic)
+        // .expect(201)
+        .then(({ body }) => {
+          expect(body.topic.slug).toBe("animals");
+          expect(body.topic.description).toBe("cool animal friends");
+        })
+    );
+  });
+
+  test("POST:400 returns bad request error message when request is missing info", () => {
+    const newTopic = {
+      slug: "dogs",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing information");
+      });
+  });
+
+  test("POST:404 returns topic already exists", () => {
+    const newTopic = {
+      slug: "cats",
+      description: "Not dogs",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic already exists");
+      });
+  });
+});
