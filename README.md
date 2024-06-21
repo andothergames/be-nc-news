@@ -1,10 +1,12 @@
-## Northcoders News API
+## Readily API
 
-### <img src="https://github.com/andothergames/stars/blob/main/starss/star3.png?raw=true?" width="16"> What is this Article Feed Project?
+### <img src="https://github.com/andothergames/stars/blob/main/starss/star3.png?raw=true?" width="16"> What is this Project?
 
-This project was developed whilst studying software development at Northcoders. It is an API used to programmatically access app data. Technologies used include Express, Postgres, SQL and TDD in Jest and Supertest.
+This back-end project was developed whilst studying software development at Northcoders. It is an API used to programmatically access article data. Technologies used include Express, Postgres, SQL and TDD in Jest and Supertest.
 
 I hosted the site using Supabase and Render, feel free to [have a look](https://article-feed.onrender.com/api)! :frog:
+
+Check out the [front-end App](https://main--majestic-lollipop-ffb284.netlify.app/) and [repo](https://github.com/andothergames/fe-readily)
 
 ---
 
