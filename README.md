@@ -6,7 +6,7 @@ This back-end project was developed whilst studying software development at Nort
 
 I hosted the site using Supabase and Render, feel free to [have a look](https://article-feed.onrender.com/api)! :frog:
 
-Check out the [front-end App](https://main--majestic-lollipop-ffb284.netlify.app/) and [repo](https://github.com/andothergames/fe-readily)
+Check out the [front-end App](https://main--majestic-lollipop-ffb284.netlify.app/) and [repo](https://github.com/andothergames/fe-readily).
 
 ---
 
@@ -14,7 +14,7 @@ Check out the [front-end App](https://main--majestic-lollipop-ffb284.netlify.app
 
 <img src="https://github.com/andothergames/stars/blob/main/starss/star12.png?raw=true?" width="16"> Clone the repo
 
-`git clone https://github.com/andothergames/be-nc-news.git`
+`git clone https://github.com/andothergames/be-readily.git`
 
 
 <img src="https://github.com/andothergames/stars/blob/main/starss/star7.png?raw=true?" width="16"> Install dependencies
